@@ -197,7 +197,6 @@ def run_monthly_step(
 
     comp_unit_cost = money(p["component_unit_cost"])
     v_lines = state["cost_lines"]["variable_per_unit"]
-    # Keep components_COGS synced with component_unit_cost
     non_comp_var_unit = (
         money(v_lines["assembly_labor"])
         + money(v_lines["packaging"])
@@ -236,7 +235,6 @@ def run_monthly_step(
     net_revenue = gross_revenue - refunds
 
     # Variable expense recognized on ALL attempted units (including failed builds)
-    consumed_component_cost = comp_unit_cost * Decimal(attempted)
     non_component_var_cost = non_comp_var_unit * Decimal(attempted)
     variable_expense = variable_per_unit * Decimal(attempted)
 
@@ -546,7 +544,6 @@ def run_all_stage1_tests() -> List[Dict[str, str]]:
         and summ2["total_expense"] == Decimal("1250.00")
         and summ2["profit"] == Decimal("-50.00")
         and summ2["ending_stock"] == 0
-        # Cash starts at 5000 + 1200 rev - 350 non-comp var - 600 fixed = 5250 (components not deducted from cash twice)
         and summ2["closing_cash"] == Decimal("5250.00")
     )
     results.append(
@@ -825,7 +822,6 @@ with tab_calc:
             f"Therefore, the true constrained maximum occurs at the capacity boundary $p = \${calc_res['p_corner']:.2f}$."
         )
 
-    # Interactive price slider linked to graph and table
     test_price = st.slider(
         "Explore Price p ($) on Profit P(p) and Derivative P'(p) Curves",
         min_value=0.0,
@@ -840,7 +836,6 @@ with tab_calc:
     prof_cont_grid = (p_grid - v_val) * s_cont_grid - F_val
     prof_unc_grid = (p_grid - v_val) * q_grid - F_val
 
-    # Piecewise derivative
     deriv_grid = np.where(
         p_grid < calc_res["p_corner"],
         float(cap_val),
@@ -858,7 +853,6 @@ with tab_calc:
         ),
     )
 
-    # Profit traces (colorblind-safe Okabe-Ito palette + dash patterns)
     fig.add_trace(
         go.Scatter(
             x=p_grid,
@@ -890,7 +884,6 @@ with tab_calc:
     )
     fig.add_vline(x=test_price, line_color="#CC79A7", line_width=2, row=1, col=1)
 
-    # Derivative traces split around corner so jump discontinuity is explicit
     left_mask = p_grid < calc_res["p_corner"]
     right_mask = p_grid > calc_res["p_corner"]
     fig.add_trace(
@@ -933,7 +926,6 @@ with tab_calc:
     fig.update_layout(height=620, legend=dict(orientation="h", y=1.08))
     st.plotly_chart(fig, use_container_width=True)
 
-    # Linked Price-Volume Table with Scenario Multipliers (1.00 / 1.10 / 0.90)
     st.markdown("#### Linked Price-Volume & Scenario Comparison Table (Continuous vs. Integer Units)")
     sample_prices = sorted(
         list(
@@ -968,7 +960,6 @@ with tab_calc:
             )
     st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
-    # Advanced Mode Definite Integration Section
     if challenge_level == "Advanced":
         st.divider()
         st.markdown("#### Advanced AP Calculus: Definite Integration of Daily Campaign Rates")
