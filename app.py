@@ -18,7 +18,7 @@ import streamlit as st
 # ==============================================================================
 
 st.set_page_config(
-    page_title="Career Venture Lab | ROB-3 (AP Calculus)",
+    page_title="Daniel's Robotics Kit & Repair Studio",
     page_icon="🤖",
     layout="wide",
 )
@@ -607,11 +607,14 @@ state = st.session_state.sim_state
 # HEADER & PERSISTENT AP CALCULUS MATH PANEL
 # ==============================================================================
 
-st.title("Career Venture Lab — Robotics Kit & Repair Studio (ROB-3)")
+st.title("Daniel's Robotics Kit & Repair Studio")
 st.caption(
-    f"Team: **{state['team_id']}** | Course: **{state['course']}** | Pathway: **{state['pathway_id']}** | "
-    f"Snapshot: **{state['snapshot_id']} (v{state['state_version']})** | Date: **{state['simulation_date']}** | "
-    f"Status: **Stage 1 Core Simulation (Fictional Educational Data)**"
+    f"Career Venture Lab • ROB-3 AP Calculus • Team: **{state['team_id']}** • "
+    f"Last saved version: **v{state['state_version']}** • Simulation date: **{state['simulation_date']}**"
+)
+st.markdown(
+    "Use the tabs below to run your robotics business. Start with **Overview**, change settings in **Setup**, "
+    "study the math in **Calculus**, record each month in **Monthly Run**, and back up your work in **Save & Load**."
 )
 
 # Top KPI strip
@@ -620,14 +623,14 @@ p = state["params"]
 derived_cap = math.floor(float(p["staff_hours"]) / float(p["hours_per_unit"]))
 
 k1, k2, k3, k4, k5 = st.columns(5)
-k1.metric("Spendable Cash", fmt_usd(b["cash"]))
-k2.metric("Component Stock", f"{b['stock_units']} sets ({fmt_usd(b['inventory_value'])})")
-k3.metric("Monthly Capacity", f"{derived_cap} kits/mo")
-k4.metric("Kit Price (p0)", fmt_usd(p["base_price"]))
-k5.metric("State Version", f"v{state['state_version']}")
+k1.metric("Cash available", fmt_usd(b["cash"]))
+k2.metric("Robot kits in stock", f"{b['stock_units']} sets")
+k3.metric("Build limit each month", f"{derived_cap} kits")
+k4.metric("Current kit price", fmt_usd(p["base_price"]))
+k5.metric("Saved version", f"v{state['state_version']}")
 
 # Persistent Math Skills & Challenge Level Panel (Visible from Overview per handbook)
-with st.expander("AP Calculus — Math Skills & Challenge Level Panel (Active)", expanded=True):
+with st.expander("Optional: AP Calculus challenge settings", expanded=False):
     m_col1, m_col2 = st.columns([1, 2])
     with m_col1:
         challenge_level = st.selectbox(
@@ -641,9 +644,9 @@ with st.expander("AP Calculus — Math Skills & Challenge Level Panel (Active)",
             f"""
             - **Course:** AP Calculus (`ROB-3`)
             - **Active Level:** `{challenge_level}`
-            - **Primary Skill:** Constrained Profit Optimization & Rate Accumulation
-            - **Price Domain:** $0 \le p \le \${2 * float(p['base_price']):.2f}$
-            - **Capacity Constraint:** $s(p) \le {derived_cap}$ kits/month
+            - **What you are practicing:** finding the best price and understanding accumulated rates
+            - **Price range:** $0$ to ${2 * float(p['base_price']):.2f}
+            - **Monthly build limit:** {derived_cap} kits
             """
         )
     with m_col2:
@@ -680,11 +683,11 @@ with st.expander("AP Calculus — Math Skills & Challenge Level Panel (Active)",
 
 tab_overview, tab_inputs, tab_calc, tab_ops, tab_save = st.tabs(
     [
-        "1. Overview & System Map",
-        "2. Inputs & Startup Funding",
-        "3. AP Calculus Optimization & Integrals",
-        "4. Operations, Ledger & Fixture Tests",
-        "5. Save / Load JSON Snapshot",
+        "1. Overview",
+        "2. Setup",
+        "3. Calculus",
+        "4. Monthly Run",
+        "5. Save & Load",
     ]
 )
 
@@ -692,77 +695,86 @@ tab_overview, tab_inputs, tab_calc, tab_ops, tab_save = st.tabs(
 # TAB 1: OVERVIEW & SYSTEM MAP
 # ------------------------------------------------------------------------------
 with tab_overview:
-    st.subheader("Business Operating System Map (ROB-3)")
+    st.subheader("Welcome to your robotics business")
     st.markdown(
         """
-        This simulation models a fictional **Robotics Kit and Repair Studio**. Every number stays inside one single
-        approved snapshot (`state_version`), and students approve every step before the ledger advances.
+        Your goal is to run a small business that builds and sells robot kits. You can change the price and staffing,
+        use calculus to study the most profitable price, record monthly sales, and track your money and inventory.
+        **Nothing is recorded in the business ledger until you approve a monthly run.**
         """
     )
+    st.info("**A simple way to use this app:** 1) Review your starting resources. 2) Adjust your business settings. 3) Explore the calculus results. 4) Record a month. 5) Export a backup.")
 
     c1, c2 = st.columns(2)
     with c1:
-        st.markdown("#### Departmental Data Flow & Feedback Loop")
-        st.code(
-            """
-[Marketing Studio (Stage 2)] --(Campaign Cost & Reach)--> [Customer Demand q(p)]
-       ^                                                          |
-       |                                                          v
-(Later Demand) <-- [Quality & Defect Tracking] <-- [Operations: Staff & Stock Cap]
-                                                                  |
-                                                                  v
-[Human Student Approval] <--- [Finance & Inventory Ledger] <--- [Completed Sales]
-            """,
-            language="text",
-        )
-        st.markdown(
-            """
-            - **Automatic inside Python engine:** Capacity floor calculation, defect failure count, inventory consumption, and cash reconciliation.
-            - **Student-managed (Manual Approval):** Parameter changes, running a monthly period, importing AI recommendations (Stage 2), and saving snapshots.
-            """
-        )
+        with st.expander("How the business system works", expanded=False):
+            st.markdown("#### How information moves through the business")
+            st.code(
+                """
+[Marketing Studio] -> [Customer Demand]
+        ^                    |
+        |                    v
+[Customer Feedback] <- [Building Robot Kits]
+                             |
+                             v
+[Your Approval] <- [Money & Inventory Records]
+                """,
+                language="text",
+            )
+            st.markdown(
+                "The app automatically checks build limits, failed kits, inventory use, and cash totals. "
+                "You control the settings and approve each monthly update."
+            )
 
     with c2:
-        st.markdown("#### Staged Build Roadmap Status")
-        st.dataframe(
-            pd.DataFrame(
-                [
-                    {"Stage": "Stage 1 (Current)", "Modules": "Inputs, Funding, AP Calculus Panel, Ledger, Save/Load JSON, Fixture Tests", "Status": "ACTIVE"},
-                    {"Stage": "Stage 2 (Planned)", "Modules": "Report Center (Income/Cash/Balance), AI Role Imports, Costed Marketing Studio", "Status": "NOT YET IMPLEMENTED"},
-                    {"Stage": "Stage 3 (Planned)", "Modules": "Frozen-Snapshot Practice Assessment Panel & Two Cross-Course Artifacts", "Status": "NOT YET IMPLEMENTED"},
-                    {"Stage": "Stage 4 (Optional)", "Modules": "Fictional Demonstration Storefront (No Real Payments)", "Status": "NOT YET IMPLEMENTED"},
-                ]
-            ),
-            use_container_width=True,
-            hide_index=True,
+        st.markdown("#### What is included?")
+        st.markdown(
+            "- **Setup:** starting money, kit price, demand, staff hours, and supplier disruption\n"
+            "- **Calculus:** profit, best price, capacity limits, and rate integration\n"
+            "- **Monthly Run:** approve sales and review the transaction ledger\n"
+            "- **Save & Load:** download or restore a business snapshot"
         )
+        with st.expander("Future features (not available yet)", expanded=False):
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        {"Stage": "Stage 1 (Current)", "Modules": "Inputs, Funding, AP Calculus Panel, Ledger, Save/Load JSON, Fixture Tests", "Status": "ACTIVE"},
+                        {"Stage": "Stage 2 (Planned)", "Modules": "Report Center, AI Role Imports, Costed Marketing Studio", "Status": "NOT YET IMPLEMENTED"},
+                        {"Stage": "Stage 3 (Planned)", "Modules": "Practice Assessment Panel & Cross-Course Artifacts", "Status": "NOT YET IMPLEMENTED"},
+                        {"Stage": "Stage 4 (Optional)", "Modules": "Fictional Demonstration Storefront (No Real Payments)", "Status": "NOT YET IMPLEMENTED"},
+                    ]
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
 
 # ------------------------------------------------------------------------------
 # TAB 2: INPUTS & STARTUP FUNDING
 # ------------------------------------------------------------------------------
 with tab_inputs:
-    st.subheader("Startup Funding & Editable Baseline Parameters")
-    st.caption("Changes below update uncommitted scenario parameters until you record a simulation month or save a new snapshot.")
+    st.subheader("Set up your business")
+    st.caption("Change these settings to see how they affect your business. Changes are not recorded as a monthly result until you approve a run.")
 
     col_f, col_p = st.columns(2)
     with col_f:
-        st.markdown("#### Day-1 Startup Balance Sheet (Fictional Defaults)")
-        st.table(
-            pd.DataFrame(
+        with st.expander("Where the starting money and equipment came from", expanded=False):
+            st.markdown("#### Starting resources (fictional example)")
+            st.table(
+                pd.DataFrame(
                 [
                     {"Item": "Owner Contribution (Equity)", "Amount": "$12,000.00", "Accounting Treatment": "Increases cash & equity; NOT sales revenue"},
                     {"Item": "Tools ($2,500) + Test Equipment ($1,500)", "Amount": "$4,000.00", "Accounting Treatment": "Capital asset; not expensed again"},
                     {"Item": "Initial Component Inventory (100 sets @ $30)", "Amount": "$3,000.00", "Accounting Treatment": "Asset; expensed only as kits are attempted"},
                     {"Item": "Post-Startup Spendable Cash", "Amount": "$5,000.00", "Accounting Treatment": "Opening cash available for operations"},
                 ]
+                )
             )
-        )
 
-        st.markdown("#### Required ROB Disruption Scenario Toggle")
-        disruption_on = st.checkbox(
-            "Simulate ROB Disruption: Supplier raises component cost +15% ($30.00 -> $34.50) & delays restock 1 week",
-            value=False,
-        )
+        with st.expander("Optional challenge: supplier cost increase", expanded=False):
+            disruption_on = st.checkbox(
+                "Simulate ROB Disruption: Supplier raises component cost +15% ($30.00 -> $34.50) & delays restock 1 week",
+                value=False,
+            )
         if disruption_on:
             state["params"]["component_unit_cost"] = "34.50"
             state["cost_lines"]["variable_per_unit"]["components_COGS"] = "34.50"
@@ -772,15 +784,16 @@ with tab_inputs:
             state["cost_lines"]["variable_per_unit"]["components_COGS"] = "30.00"
 
     with col_p:
-        st.markdown("#### Editable Operating & Cost Inputs")
-        new_team = st.text_input("Team ID", value=state["team_id"])
+        st.markdown("#### Main business settings")
+        st.caption("These settings control your price, expected customer demand, available work time, and build quality.")
+        new_team = st.text_input("Team name / ID", value=state["team_id"])
         state["team_id"] = new_team.strip() or "TEAM-ROB-07"
 
         p_price = st.number_input("Base Price per Kit ($)", min_value=1.0, max_value=500.0, value=float(p["base_price"]), step=5.0)
-        p_d0 = st.number_input("Baseline Monthly Demand D0 at Base Price (kits)", min_value=0, max_value=500, value=int(p["D0"]), step=1)
-        p_hours = st.number_input("Monthly Staff Hours", min_value=0.0, max_value=1000.0, value=float(p["staff_hours"]), step=3.0)
-        p_hpu = st.number_input("Assembly Hours per Kit", min_value=0.5, max_value=40.0, value=float(p["hours_per_unit"]), step=0.5)
-        p_defect = st.slider("Build Defect Rate (fraction of attempted kits that fail)", min_value=0.0, max_value=0.50, value=float(p["defect_rate"]), step=0.01)
+        p_d0 = st.number_input("Expected customer demand per month (kits)", min_value=0, max_value=500, value=int(p["D0"]), step=1)
+        p_hours = st.number_input("Staff work hours available each month", min_value=0.0, max_value=1000.0, value=float(p["staff_hours"]), step=3.0)
+        p_hpu = st.number_input("Hours needed to build one kit", min_value=0.5, max_value=40.0, value=float(p["hours_per_unit"]), step=0.5)
+        p_defect = st.slider("Build failure rate", min_value=0.0, max_value=0.50, value=float(p["defect_rate"]), step=0.01)
 
         state["params"]["base_price"] = str(money(p_price))
         state["params"]["D0"] = int(p_d0)
@@ -799,7 +812,8 @@ with tab_inputs:
 # TAB 3: AP CALCULUS OPTIMIZATION & INTEGRALS
 # ------------------------------------------------------------------------------
 with tab_calc:
-    st.subheader("AP Calculus Analysis — Constrained Optimization & Rate Integration")
+    st.subheader("Use calculus to make better business decisions")
+    st.caption("This section estimates how price affects demand and profit, then uses definite integrals to add up revenue and costs over time.")
 
     D0_val = float(state["params"]["D0"])
     p0_val = float(state["params"]["base_price"])
@@ -809,11 +823,13 @@ with tab_calc:
 
     calc_res = solve_ap_calculus(D0_val, p0_val, v_val, F_val, cap_val)
 
+    st.info("**How to read this:** The app compares prices and customer demand while respecting how many kits your team can actually build. The best price is an estimate from the current settings, not a guaranteed real-world result.")
+
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Unconstrained Peak p*", f"${calc_res['p_unc_star']:.2f}", f"Profit: ${calc_res['prof_unc_star']:.2f}")
-    m2.metric("Capacity Corner p_cap", f"${calc_res['p_corner']:.2f}", f"Cap = {cap_val} kits")
-    m3.metric("Constrained Optimum p*", f"${calc_res['p_con_star']:.2f}", f"Continuous Profit: ${calc_res['prof_cont_opt']:.2f}")
-    m4.metric("Integer Whole-Kit Profit at p*", f"${calc_res['prof_int_opt']:.2f}", f"Whole kits sold: {calc_res['s_int_opt']}")
+    m1.metric("Best price without a build limit", f"${calc_res['p_unc_star']:.2f}", f"Profit: ${calc_res['prof_unc_star']:.2f}")
+    m2.metric("Price where demand meets capacity", f"${calc_res['p_corner']:.2f}", f"Cap = {cap_val} kits")
+    m3.metric("Best price with your build limit", f"${calc_res['p_con_star']:.2f}", f"Continuous Profit: ${calc_res['prof_cont_opt']:.2f}")
+    m4.metric("Estimated profit (whole kits)", f"${calc_res['prof_int_opt']:.2f}", f"Whole kits sold: {calc_res['s_int_opt']}")
 
     if calc_res["unconstrained_is_infeasible"]:
         st.warning(
@@ -823,7 +839,7 @@ with tab_calc:
         )
 
     test_price = st.slider(
-        "Explore Price p ($) on Profit P(p) and Derivative P'(p) Curves",
+        "Try a kit price and see how profit changes ($)",
         min_value=0.0,
         max_value=float(calc_res["p_max"]),
         value=float(round(calc_res["p_con_star"], 2)),
@@ -923,102 +939,104 @@ with tab_calc:
     fig.update_xaxes(title_text="Kit Price p (USD)", row=2, col=1)
     fig.update_yaxes(title_text="Profit ($/mo)", row=1, col=1)
     fig.update_yaxes(title_text="P'(p) ($ per $1 price)", row=2, col=1)
-    fig.update_layout(height=620, legend=dict(orientation="h", y=1.08))
+    fig.update_layout(height=500, legend=dict(orientation="h", y=1.08))
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("#### Linked Price-Volume & Scenario Comparison Table (Continuous vs. Integer Units)")
-    sample_prices = sorted(
-        list(
-            {
-                round(p0_val, 2),
-                round(calc_res["p_corner"], 2),
-                round(calc_res["p_unc_star"], 2),
-                round(test_price, 2),
-                180.0,
-            }
-        )
-    )
-    rows = []
-    for sp in sample_prices:
-        if 0 <= sp <= calc_res["p_max"]:
-            q_base = max(0.0, calc_res["a"] - calc_res["b"] * sp)
-            s_cont = min(float(cap_val), q_base)
-            s_int = min(cap_val, math.floor(q_base))
-            s_up = min(cap_val, math.floor(q_base * 1.10))
-            s_dn = min(cap_val, math.floor(q_base * 0.90))
-            rows.append(
+    with st.expander("See the detailed price and sales comparison table", expanded=False):
+        sample_prices = sorted(
+            list(
                 {
-                    "Price ($)": f"${sp:.2f}",
-                    "Demand q(p)": round(q_base, 2),
-                    "Continuous Sales s(p)": round(s_cont, 2),
-                    "Integer Sold (Floor)": s_int,
-                    "Continuous Profit ($)": f"${(sp - v_val)*s_cont - F_val:,.2f}",
-                    "Baseline Integer Profit (1.00x)": f"${(sp - v_val)*s_int - F_val:,.2f}",
-                    "Upside Profit (1.10x Demand)": f"${(sp - v_val)*s_up - F_val:,.2f}",
-                    "Downside Profit (0.90x Demand)": f"${(sp - v_val)*s_dn - F_val:,.2f}",
+                    round(p0_val, 2),
+                    round(calc_res["p_corner"], 2),
+                    round(calc_res["p_unc_star"], 2),
+                    round(test_price, 2),
+                    180.0,
                 }
             )
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        )
+        rows = []
+        for sp in sample_prices:
+            if 0 <= sp <= calc_res["p_max"]:
+                q_base = max(0.0, calc_res["a"] - calc_res["b"] * sp)
+                s_cont = min(float(cap_val), q_base)
+                s_int = min(cap_val, math.floor(q_base))
+                s_up = min(cap_val, math.floor(q_base * 1.10))
+                s_dn = min(cap_val, math.floor(q_base * 0.90))
+                rows.append(
+                    {
+                        "Kit price": f"${sp:.2f}",
+                        "Estimated demand": round(q_base, 2),
+                        "Kits we can build": round(s_cont, 2),
+                        "Whole kits sold": s_int,
+                        "Estimated profit": f"${(sp - v_val)*s_cont - F_val:,.2f}",
+                        "Profit if demand is 10% higher": f"${(sp - v_val)*s_up - F_val:,.2f}",
+                        "Profit if demand is 10% lower": f"${(sp - v_val)*s_dn - F_val:,.2f}",
+                    }
+                )
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
     if challenge_level == "Advanced":
         st.divider()
-        st.markdown("#### Advanced AP Calculus: Definite Integration of Daily Campaign Rates")
-        st.caption(
-            "Isolated campaign rate model (separate from monthly accounting ledger): "
-            "$\text{Net Accumulated Profit} = \int_0^T [r(t) - c(t)]\,dt$ in USD."
-        )
-        ic1, ic2, ic3, ic4, ic5 = st.columns(5)
-        r0 = ic1.number_input("r0 ($/day)", value=100.0, step=10.0)
-        r1 = ic2.number_input("r1 ($/day^2)", value=20.0, step=5.0)
-        c0 = ic3.number_input("c0 ($/day)", value=60.0, step=10.0)
-        c1 = ic4.number_input("c1 ($/day^2)", value=5.0, step=1.0)
-        t_end = ic5.number_input("Horizon T (days)", min_value=1.0, max_value=60.0, value=10.0, step=1.0)
-
-        integ_res = solve_rate_integral(r0, r1, c0, c1, t_end)
-        ir1, ir2, ir3 = st.columns(3)
-        ir1.metric("Accumulated Revenue ∫r(t)dt", f"${integ_res['rev']:,.2f}")
-        ir2.metric("Accumulated Cost ∫c(t)dt", f"${integ_res['cost']:,.2f}")
-        ir3.metric("Net Accumulated Profit", f"${integ_res['profit']:,.2f}")
-
-        t_grid = np.linspace(0, t_end, 100)
-        r_t = r0 + r1 * t_grid
-        c_t = c0 + c1 * t_grid
-        fig_int = go.Figure()
-        fig_int.add_trace(go.Scatter(x=t_grid, y=r_t, name="Revenue Rate r(t) [$/day]", line=dict(color="#0072B2", width=3)))
-        fig_int.add_trace(
-            go.Scatter(
-                x=t_grid,
-                y=c_t,
-                name="Cost Rate c(t) [$/day]",
-                line=dict(color="#D55E00", width=3, dash="dash"),
-                fill="tonexty",
-                fillcolor="rgba(0, 158, 115, 0.20)",
+        with st.expander("Advanced: add up revenue and costs over time (definite integrals)", expanded=True):
+            st.markdown("#### Daily revenue and cost rates")
+            st.caption("A rate tells you how many dollars come in or go out each day. The integral adds those daily amounts over the chosen number of days.")
+            st.caption(
+                "This is a separate classroom math example; it does not change the monthly business ledger. "
+                "$\text{Total profit} = \int_0^T [r(t) - c(t)]\,dt$."
             )
-        )
-        fig_int.update_layout(
-            title=f"Shaded Net Profit Accumulation ∫(r(t)-c(t))dt = ${integ_res['profit']:,.2f} over [0, {t_end:.0f}] days",
-            xaxis_title="Time t (days)",
-            yaxis_title="Rate (USD / day)",
-            height=360,
-        )
-        st.plotly_chart(fig_int, use_container_width=True)
+            ic1, ic2, ic3, ic4, ic5 = st.columns(5)
+            r0 = ic1.number_input("Starting revenue rate ($/day)", value=100.0, step=10.0)
+            r1 = ic2.number_input("Revenue rate increase ($/day²)", value=20.0, step=5.0)
+            c0 = ic3.number_input("Starting cost rate ($/day)", value=60.0, step=10.0)
+            c1 = ic4.number_input("Cost rate increase ($/day²)", value=5.0, step=1.0)
+            t_end = ic5.number_input("Number of days", min_value=1.0, max_value=60.0, value=10.0, step=1.0)
+
+            integ_res = solve_rate_integral(r0, r1, c0, c1, t_end)
+            ir1, ir2, ir3 = st.columns(3)
+            ir1.metric("Total revenue", f"${integ_res['rev']:,.2f}")
+            ir2.metric("Total cost", f"${integ_res['cost']:,.2f}")
+            ir3.metric("Total profit", f"${integ_res['profit']:,.2f}")
+
+            t_grid = np.linspace(0, t_end, 100)
+            r_t = r0 + r1 * t_grid
+            c_t = c0 + c1 * t_grid
+            fig_int = go.Figure()
+            fig_int.add_trace(go.Scatter(x=t_grid, y=r_t, name="Revenue per day", line=dict(color="#0072B2", width=3)))
+            fig_int.add_trace(
+                go.Scatter(
+                    x=t_grid,
+                    y=c_t,
+                    name="Cost per day",
+                    line=dict(color="#D55E00", width=3, dash="dash"),
+                    fill="tonexty",
+                    fillcolor="rgba(0, 158, 115, 0.20)",
+                )
+            )
+            fig_int.update_layout(
+                title=f"Total profit over {t_end:.0f} days: ${integ_res['profit']:,.2f}",
+                xaxis_title="Day",
+                yaxis_title="Dollars per day",
+                height=340,
+            )
+            st.plotly_chart(fig_int, use_container_width=True)
 
 # ------------------------------------------------------------------------------
 # TAB 4: OPERATIONS, LEDGER & FIXTURE TESTS
 # ------------------------------------------------------------------------------
 with tab_ops:
-    st.subheader("Record Monthly Simulation Step & Verification Suite")
+    st.subheader("Record this month's business activity")
+    st.caption("Enter what you expect to happen this month, review the result, and approve it to update your cash, inventory, and ledger.")
 
     op_col1, op_col2 = st.columns(2)
     with op_col1:
-        st.markdown("#### Advance Simulation by One Approved Month (Normal Mode)")
+        st.markdown("#### 1. Enter this month's activity")
         with st.form("advance_month_form"):
-            sim_month = st.text_input("Simulation Month (YYYY-MM)", value="2027-01")
-            req_units = st.number_input("Requested Customer Demand (kits)", min_value=0, max_value=500, value=int(state["params"]["D0"]), step=1)
-            restock_in = st.number_input("Restock Component Sets Purchased This Month", min_value=0, max_value=500, value=0, step=5)
-            ad_in = st.number_input("Approved Own-Business Campaign Expense ($)", min_value=0.0, max_value=10000.0, value=0.0, step=25.0)
-            run_id_in = st.text_input("Unique Run ID (Duplicate Protection)", value=f"RUN-{sim_month}-v{state['state_version']}")
-            submitted = st.form_submit_button("Approve & Record Month to Ledger")
+            sim_month = st.text_input("Month (YYYY-MM)", value="2027-01")
+            req_units = st.number_input("How many kits customers want", min_value=0, max_value=500, value=int(state["params"]["D0"]), step=1)
+            restock_in = st.number_input("Additional component sets purchased", min_value=0, max_value=500, value=0, step=5)
+            ad_in = st.number_input("Marketing money spent ($)", min_value=0.0, max_value=10000.0, value=0.0, step=25.0)
+            run_id_in = st.text_input("Run reference (prevents duplicate entries)", value=f"RUN-{sim_month}-v{state['state_version']}")
+            submitted = st.form_submit_button("Approve month and update business records")
 
         if submitted:
             ok, msg, summ = run_monthly_step(
@@ -1036,34 +1054,35 @@ with tab_ops:
                 st.error(msg)
 
     with op_col2:
-        st.markdown("#### Fixture Replay & Automated Stage 1 Acceptance Tests")
-        st.caption(
-            "Fixture mode uses `sample_data/monthly_fixture.csv` (`capacity_override`) ONLY for verification. "
-            "Clicking below runs all ROB-3 and AP Calculus checks."
-        )
-        if st.button("Run All Stage 1 Verification Tests", type="primary"):
-            test_rows = run_all_stage1_tests()
-            st.dataframe(pd.DataFrame(test_rows), use_container_width=True, hide_index=True)
-
-        if st.button("Load & Replay `monthly_fixture.csv` Into Active Ledger (Resets State First)"):
-            st.session_state.sim_state = get_initial_state()
-            state = st.session_state.sim_state
-            st.warning("FIXTURE-TEST MODE ACTIVE: capacity_override used strictly for sample verification.")
-            fixture_rows = [
-                ("2027-01", 40, 30, Decimal("0.00")),
-                ("2027-02", 44, 30, Decimal("100.00")),
-                ("2027-03", 36, 22, Decimal("0.00")),
-            ]
-            summaries = []
-            for m, req, cap_ov, ad in fixture_rows:
-                _, _, sm = run_monthly_step(
-                    state, m, req, f"FIXTURE-{m}", capacity_override=cap_ov, ad_cost_override=ad
-                )
-                summaries.append({k: str(v) for k, v in sm.items()})
-            st.dataframe(pd.DataFrame(summaries), use_container_width=True, hide_index=True)
-
+        with st.expander("2. Technical checks (optional)", expanded=False):
+            st.markdown("#### Automated checks and sample-data replay")
+            st.caption(
+                "Fixture mode uses `sample_data/monthly_fixture.csv` (`capacity_override`) ONLY for verification. "
+                "Clicking below runs all ROB-3 and AP Calculus checks."
+            )
+            if st.button("Run All Stage 1 Verification Tests", type="primary"):
+                test_rows = run_all_stage1_tests()
+                st.dataframe(pd.DataFrame(test_rows), use_container_width=True, hide_index=True)
+    
+            if st.button("Load & Replay `monthly_fixture.csv` Into Active Ledger (Resets State First)"):
+                st.session_state.sim_state = get_initial_state()
+                state = st.session_state.sim_state
+                st.warning("FIXTURE-TEST MODE ACTIVE: capacity_override used strictly for sample verification.")
+                fixture_rows = [
+                    ("2027-01", 40, 30, Decimal("0.00")),
+                    ("2027-02", 44, 30, Decimal("100.00")),
+                    ("2027-03", 36, 22, Decimal("0.00")),
+                ]
+                summaries = []
+                for m, req, cap_ov, ad in fixture_rows:
+                    _, _, sm = run_monthly_step(
+                        state, m, req, f"FIXTURE-{m}", capacity_override=cap_ov, ad_cost_override=ad
+                    )
+                    summaries.append({k: str(v) for k, v in sm.items()})
+                st.dataframe(pd.DataFrame(summaries), use_container_width=True, hide_index=True)
     st.divider()
-    st.markdown("#### Underlying Dated Event Ledger")
+    st.markdown("#### Your transaction history")
+    st.caption("Every approved sale, expense, and inventory purchase is listed here.")
     if state["ledger"]:
         df_ledger = pd.DataFrame(state["ledger"])
         st.dataframe(df_ledger, use_container_width=True, hide_index=True)
@@ -1080,24 +1099,23 @@ with tab_ops:
 # TAB 5: SAVE / LOAD JSON SNAPSHOT (DURABLE PERSISTENCE & VALIDATION)
 # ------------------------------------------------------------------------------
 with tab_save:
-    st.subheader("Save / Load Business Snapshot (JSON Persistence)")
+    st.subheader("Save your progress or continue from a backup")
     st.markdown(
         """
-        Browser memory resets if the server restarts. Export your JSON snapshot after every decision round,
-        and restore it here to continue working. Imports validate `team_id`, `pathway_id`, required fields, and `state_version`.
+        Download a backup of your business so you can continue later. To continue from an earlier backup, upload its JSON file below. The app checks that the file belongs to this ROB-3 project before restoring it.
         """
     )
 
     snapshot_json_str = json.dumps(state, indent=2)
     st.download_button(
-        label=f"Export Snapshot JSON ({state['snapshot_id']} - v{state['state_version']})",
+        label=f"Download business backup (version {state['state_version']})",
         data=snapshot_json_str.encode("utf-8"),
         file_name=f"{state['team_id']}_ROB3_snapshot_v{state['state_version']}.json",
         mime="application/json",
     )
 
     st.divider()
-    uploaded_file = st.file_uploader("Restore / Import Snapshot JSON", type=["json"])
+    uploaded_file = st.file_uploader("Upload a previous business backup (.json)", type=["json"])
     if uploaded_file is not None:
         try:
             incoming = json.load(uploaded_file)
